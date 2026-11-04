@@ -1,0 +1,5 @@
+Main:numberOfEvents = 100
+Beams:eCM = 13600.
+SoftQCD:inelastic = on
+Random:setSeed = on
+Random:seed = 123
