@@ -13,3 +13,6 @@ find_library(PYTHIA8_LIBRARY pythia8 REQUIRED)
 add_executable(generate src/generate.cc)
 target_include_directories(generate PRIVATE ${PYTHIA8_INCLUDE_DIR})
 target_link_libraries(generate PRIVATE ${PYTHIA8_LIBRARY} ${CMAKE_DL_LIBS} ROOT::Core ROOT::RIO ROOT::Tree)
+
+add_executable(analyze src/analyze.cc)
+target_link_libraries(analyze PRIVATE ROOT::Core ROOT::RIO ROOT::Tree ROOT::Hist)
