@@ -1,0 +1,33 @@
+# Build (C++ / CMake)
+build/
+compile_commands.json
+*.o
+*.a
+*.so
+
+# ROOT
+*.root
+!results/analysis.root
+*.d
+*.pcm
+*_ACLiC_*
+AutoDict_*
+
+# Logs
+*.log
+
+# LaTeX
+*.aux
+*.fdb_latexmk
+*.fls
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
+*.synctex.gz
+
+# Other
+.vscode/
+*~
+.DS_Store
