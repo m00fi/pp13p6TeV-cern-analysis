@@ -1,0 +1,58 @@
+Events: 100000
+
+Particles per category
+  name      particles  per event
+  all        18965910    189.659
+  ch          9066192     90.662
+  pip         3776570     37.766
+  pim         3710328     37.103
+  Kp           415363      4.154
+  Km           403863      4.039
+  p            381895      3.819
+  pbar         259611      2.596
+
+Composition of charged particles
+  pi+-        82.6%
+  K+-          9.0%
+  p, pbar      7.1%
+  other        1.3%
+
+Photons per event: 88.93
+Events with an odd number of charged particles: 0
+
+Histogram statistics (mean and std dev include underflow and overflow)
+  histogram     entries         mean      std dev  underflow   overflow
+  hN_all         100000       189.66       157.42          0      12251
+  hPt_all      18965910      0.39729      0.45243          0        544
+  hEta_all     18965910    -0.000155       4.1637    2445816    2445477
+  hPhi_all     18965910  -0.00015765       1.8136          0          0
+  hN_ch          100000       90.662       75.117          0         65
+  hPt_ch        9066192      0.50998      0.49863          0        380
+  hEta_ch       9066192    -0.002237       4.2477    1219715    1218112
+  hPhi_ch       9066192  -0.00042158       1.8136          0          0
+  hN_pip         100000       37.766       31.413          0          0
+  hPt_pip       3776570      0.47799      0.45823          0        105
+  hEta_pip      3776570  -0.00041178        4.171     495527     495803
+  hPhi_pip      3776570  -3.1332e-05       1.8138          0          0
+  hN_pim         100000       37.103       31.371          0          0
+  hPt_pim       3710328      0.47788      0.45784          0        115
+  hEta_pim      3710328   -0.0033502       4.0843     466101     464620
+  hPhi_pim      3710328  -0.00015969       1.8132          0          0
+  hN_Kp          100000       4.1536       4.0716          0          0
+  hPt_Kp         415363      0.68192      0.63143          0         53
+  hEta_Kp        415363   -0.0039313       4.2635      57518      57486
+  hPhi_Kp        415363   8.7215e-06       1.8138          0          0
+  hN_Km          100000       4.0386       4.0344          0          0
+  hPt_Km         403863      0.68036      0.64412          0         61
+  hEta_Km        403863   -0.0018895        4.141      52607      52452
+  hPhi_Km        403863  -0.00017272       1.8154          0          0
+  hN_p           100000        3.819       2.6992          0          0
+  hPt_p          381895      0.69317      0.61187          0         23
+  hEta_p         381895    -0.012644       6.2209      96631      96228
+  hPhi_p         381895   -0.0035678       1.8154          0          0
+  hN_pbar        100000       2.5961       2.6705          0          0
+  hPt_pbar       259611      0.77808      0.67191          0         19
+  hEta_pbar      259611    0.0078671       4.3234      37340      37589
+  hPhi_pbar      259611   -0.0082567       1.8129          0          0
+
+Processed 100000 events, histograms saved to results/analysis.root

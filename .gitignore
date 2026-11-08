@@ -15,6 +15,7 @@ AutoDict_*
 
 # Logs
 *.log
+!results/*.log
 
 # LaTeX
 *.aux

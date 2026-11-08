@@ -20,13 +20,16 @@ struct Variable {
     std::string prefix;  // histogram name prefix
     std::string title;   // plot title before the category label
     bool logY;           // log scale
+    bool asPoints;       // markers instead of a line
 };
 
+// N_ch is always even (the beams carry charge +2), so every other bin of hN_ch is empty.
+// Drawn as a line, the histogram would drop to zero at each of them; markers just leave a gap.
 const std::vector<Variable> variables = {
-    {"hN", "Multiplicity", true},
-    {"hPt", "Transverse momentum", true},
-    {"hEta", "Pseudorapidity", false},
-    {"hPhi", "Azimuthal angle", false},
+    {"hN", "Multiplicity", true, true},
+    {"hPt", "Transverse momentum", true, false},
+    {"hEta", "Pseudorapidity", false, false},
+    {"hPhi", "Azimuthal angle", false, false},
 };
 
 struct Category {
@@ -60,7 +63,7 @@ TLegend* makeLegend(TH1D* hist) {
     legend->SetTextSize(0.035);
     legend->SetMargin(0.05);  // no marker column, text starts at the left edge
     legend->AddEntry(static_cast<TObject*>(nullptr), Form("Entries: %.0f", hist->GetEntries()), "");
-    // Mean and standard deviation use only the entries inside the axis range.
+    // Mean and standard deviation include entries outside the axis range (set in analyze.cc).
     legend->AddEntry(static_cast<TObject*>(nullptr), Form("Mean: %.4g", hist->GetMean()), "");
     legend->AddEntry(static_cast<TObject*>(nullptr), Form("Std Dev: %.4g", hist->GetStdDev()), "");
 
@@ -116,7 +119,14 @@ void draw_plots() {
                 hist->SetMinimum(0.0);
                 hist->SetMaximum(maximum * 1.7);
             }
-            hist->Draw("HIST");
+            if (variable.asPoints) {
+                hist->SetMarkerStyle(kFullCircle);
+                hist->SetMarkerSize(0.5);
+                hist->SetMarkerColor(category.color);
+                hist->Draw("P");
+            } else {
+                hist->Draw("HIST");
+            }
 
             TLegend* legend = makeLegend(hist);
             legend->Draw();
