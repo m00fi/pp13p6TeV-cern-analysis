@@ -6,6 +6,8 @@
 #include <TStyle.h>
 #include <TSystem.h>
 
+#include <algorithm>
+#include <cstddef>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -35,17 +37,19 @@ const std::vector<Variable> variables = {
 struct Category {
     std::string name;  // histogram name suffix
     Color_t color;
+    double nMax;       // upper end of the drawn multiplicity axis; the histogram keeps its 0-400 range
 };
 
+// Kaons and protons have at most about 30 per event, so their multiplicity axis is zoomed in.
 const std::vector<Category> categories = {
-    {"all", kBlack},
-    {"ch", kGray + 2},
-    {"pip", kBlue + 1},
-    {"pim", kAzure + 7},
-    {"Kp", kGreen + 2},
-    {"Km", kSpring - 6},
-    {"p", kRed + 1},
-    {"pbar", kOrange + 7},
+    {"all", kBlack, 400.0},
+    {"ch", kGray + 2, 400.0},
+    {"pip", kBlue + 1, 400.0},
+    {"pim", kAzure + 7, 400.0},
+    {"Kp", kGreen + 2, 40.0},
+    {"Km", kSpring - 6, 40.0},
+    {"p", kRed + 1, 40.0},
+    {"pbar", kOrange + 7, 40.0},
 };
 
 void setStyle() {
@@ -57,7 +61,7 @@ void setStyle() {
 }
 
 TLegend* makeLegend(TH1D* hist) {
-    auto* legend = new TLegend(0.67, 0.75, 0.92, 0.92);
+    auto* legend = new TLegend(0.63, 0.75, 0.92, 0.92);
     legend->SetBorderSize(1);
     legend->SetFillColor(kWhite);
     legend->SetTextSize(0.035);
@@ -75,6 +79,76 @@ TLegend* makeLegend(TH1D* hist) {
     return legend;
 }
 
+// Overlays one variable for identified particles, each normalised to the number of its particles,
+// so the shapes can be compared although pions are about ten times more numerous than kaons or protons.
+void drawComparison(TFile& input, const std::string& prefix, const std::string& title, bool logY) {
+    const std::vector<std::string> names = {"pip", "Kp", "p", "pbar"};
+
+    TCanvas canvas(("c_compare_" + prefix).c_str(), title.c_str(), 800, 600);
+    canvas.SetLeftMargin(0.13);
+    canvas.SetBottomMargin(0.12);
+    canvas.SetLogy(logY);
+
+    auto* legend = new TLegend(0.56, 0.72, 0.92, 0.92);
+    legend->SetBorderSize(1);
+    legend->SetFillColor(kWhite);
+    legend->SetTextSize(0.035);
+
+    std::vector<TH1D*> hists;
+    double maximum = 0.0;
+    for (const std::string& name : names) {
+        auto* source = input.Get<TH1D>((prefix + "_" + name).c_str());
+        if (!source) {
+            std::cerr << "Histogram not found: " << prefix << "_" << name << '\n';
+            continue;
+        }
+        auto* hist = static_cast<TH1D*>(source->Clone((prefix + "_" + name + "_norm").c_str()));
+        hist->SetDirectory(nullptr);
+        const double entries = hist->GetEntries();
+        const double mean = hist->GetMean();
+        const double outside = hist->GetBinContent(0) + hist->GetBinContent(hist->GetNbinsX() + 1);
+        hist->Scale(1.0 / entries);
+
+        Color_t color = kBlack;
+        for (const Category& category : categories) {
+            if (category.name == name) color = category.color;
+        }
+        hist->SetLineColor(color);
+        hist->SetLineWidth(2);
+        maximum = std::max(maximum, hist->GetMaximum());
+
+        // pT: mean value; eta: share of particles outside the drawn range
+        const std::string label = source->GetTitle();
+        if (prefix == "hPt") {
+            legend->AddEntry(hist, Form("%s, mean %.2f GeV", label.c_str(), mean), "l");
+        } else {
+            legend->AddEntry(hist, Form("%s, %.0f%% outside |#eta| < 5", label.c_str(), 100.0 * outside / entries), "l");
+        }
+        hists.push_back(hist);
+    }
+    if (hists.empty()) return;
+
+    TH1D* first = hists.front();
+    first->SetTitle((title + ";" + first->GetXaxis()->GetTitle() + ";Fraction of particles").c_str());
+    if (logY) {
+        first->SetMinimum(1e-6);
+        first->SetMaximum(maximum * 50.0);
+    } else {
+        first->SetMinimum(0.0);
+        first->SetMaximum(maximum * 1.6);
+    }
+    first->Draw("HIST");
+    for (std::size_t i = 1; i < hists.size(); ++i) hists[i]->Draw("HIST SAME");
+    legend->Draw();
+
+    const std::string basePath = std::string(outputDir) + "/compare_" + prefix;
+    canvas.SaveAs((basePath + ".png").c_str());
+    canvas.SaveAs((basePath + ".pdf").c_str());
+
+    delete legend;
+    for (TH1D* hist : hists) delete hist;
+}
+
 }  // namespace
 
 void draw_plots() {
@@ -86,7 +160,11 @@ void draw_plots() {
 
     setStyle();
     gSystem->mkdir(outputDir, true);
-    
+
+    // Before the main loop, which changes the histogram titles
+    drawComparison(input, "hPt", "Transverse momentum: identified particles", true);
+    drawComparison(input, "hEta", "Pseudorapidity: identified particles", false);
+
     TCanvas summary("summary", "All plots", 800, 600);
     summary.Print(Form("%s[", summaryPdfPath));
 
@@ -110,6 +188,12 @@ void draw_plots() {
             hist->SetLineColor(category.color);
             hist->SetLineWidth(2);
 
+            // Before zooming: with an axis range set, ROOT computes the mean from bin centres
+            TLegend* legend = makeLegend(hist);
+            if (variable.prefix == "hN" && category.nMax < hist->GetXaxis()->GetXmax()) {
+                hist->GetXaxis()->SetRangeUser(0.0, category.nMax);
+            }
+
             // Leave room above the data for the legend
             const double maximum = hist->GetMaximum();
             if (variable.logY) {
@@ -128,7 +212,6 @@ void draw_plots() {
                 hist->Draw("HIST");
             }
 
-            TLegend* legend = makeLegend(hist);
             legend->Draw();
 
             const std::string basePath = std::string(outputDir) + "/" + name;

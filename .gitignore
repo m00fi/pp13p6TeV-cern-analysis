@@ -18,6 +18,7 @@ AutoDict_*
 !results/*.log
 
 # LaTeX
+*.tex
 *.aux
 *.fdb_latexmk
 *.fls

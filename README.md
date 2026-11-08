@@ -6,6 +6,16 @@ dla ośmiu kategorii cząstek i rysuje je jako wykresy PNG i PDF.
 
 Autor: Michał Chrostowski
 
+**Prezentacja z wynikami:** [slides/presentation.pdf](slides/presentation.pdf), wszystkie 32 wykresy z komentarzem
+
+| | |
+|:---:|:---:|
+| ![Pęd poprzeczny π⁺, K⁺, p i p̄](results/plots/compare_hPt.png) | ![Pseudopospieszność π⁺, K⁺, p i p̄](results/plots/compare_hEta.png) |
+
+*Rozkłady pT i η dla π⁺, K⁺, p i p̄, każdy unormowany do liczby cząstek swojego rodzaju.
+Cięższe cząstki mają twardsze widmo pT, a połowa protonów leci poza |η| < 5, bo część z nich
+to protony z wiązki.*
+
 ## Struktura repozytorium
 
 ```
@@ -18,7 +28,9 @@ Autor: Michał Chrostowski
 │   ├── analysis.root      # 32 histogramy
 │   ├── generate.log       # log Pythii: ustawienia, przekroje czynne, błędy i ostrzeżenia
 │   ├── analysis.log       # liczby cząstek i statystyki każdego histogramu
-│   └── plots/             # wykresy PNG i PDF oraz zbiorczy all_plots.pdf
+│   └── plots/             # wykresy PNG i PDF, zbiorczy all_plots.pdf i wykresy porównawcze
+├── slides/
+│   └── presentation.pdf   # prezentacja ze wszystkimi wykresami
 └── data/events.root       # cząstki końcowe ze wszystkich zdarzeń (poza repo, ok. 225 MB)
 ```
 
@@ -66,7 +78,7 @@ root -l -b -q draw_plots.C                     # wykresy
 |---|---|---|
 | `generate` | `config/config.cmnd` | `data/events.root`: drzewo `events`, jeden wpis na zdarzenie |
 | `analyze` | `data/events.root` | `results/analysis.root`: 32 histogramy |
-| `draw_plots.C` | `results/analysis.root` | `results/plots/`: 32 × PNG, 32 × PDF i `all_plots.pdf` |
+| `draw_plots.C` | `results/analysis.root` | `results/plots/`: 32 × PNG, 32 × PDF, `all_plots.pdf` i 2 wykresy porównawcze `compare_*` |
 
 Generacja 100 000 zdarzeń trwała 3 min 33 s na jednym rdzeniu laptopa, a analiza około 6 s.
 
@@ -158,10 +170,13 @@ Każda kategoria ma histogramy `hN_*`, `hPt_*`, `hEta_*` i `hPhi_*`, razem 32.
 ## Uwagi do interpretacji wykresów
 
 - **Zakresy z polecenia obcinają część rozkładów:** 12.3% zdarzeń ma N<sub>all</sub> ≥ 400,
-  65 zdarzeń ma N<sub>ch</sub> ≥ 400, a około 27% cząstek ma |η| > 5. Te wpisy trafiają do underflow lub overflow: legenda podaje ich liczbę
-  w wierszu `Outside range`, a `Mean` i `Std Dev` je uwzględniają.
+  65 zdarzeń ma N<sub>ch</sub> ≥ 400, a około 27% cząstek ma |η| > 5. Te wpisy trafiają
+  do underflow lub overflow: legenda podaje ich liczbę w wierszu `Outside range`, a `Mean`
+  i `Std Dev` je uwzględniają.
 - **Krotności rysujemy punktami:** co drugi bin `hN_ch` jest pusty, bo N<sub>ch</sub> jest
   parzyste, więc linia spadałaby w nich do zera. 400 binów zostaje, bo tego wymaga polecenie.
+- **Przybliżone osie:** na wykresach krotności K± i p/p̄ oś pokazuje 0–40, bo tych cząstek
+  jest najwyżej około 30 w zdarzeniu. Histogramy mają pełny zakres 0–400.
 
 ## Źródła
 
